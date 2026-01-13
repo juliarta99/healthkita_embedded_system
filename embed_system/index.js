@@ -3,8 +3,8 @@
     
     // Default Configuration
     const DEFAULT_CONFIG = {
-        apiUrl: 'http://127.0.0.1:5500/api',
-        widgetBaseUrl: 'http://127.0.0.1:5500/embed',
+        apiUrl: 'https://healthkita-embedded-system.vercel.app/api',
+        widgetBaseUrl: 'https://healthkita-embedded-system.vercel.app',
         theme: {
             primaryColor: '#57CC99',
             textColor: '#212121',
