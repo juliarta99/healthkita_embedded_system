@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adherence Report</title>
+    <style>
+        :root {
+            --primary-color: #57CC99;
+            --text-color: #212121;
+            --bg-color: #FBFBFB;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00b894;
+            --warning-color: #ff9800;
+            --danger-color: #ff6b6b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--bg-color);
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        
+        .nav-link {
+            font-size: 20px;
+            color: #999;
+            text-decoration: none;
+            font-weight: 500;
+            padding-bottom: 5px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-link.active {
+            color: var(--text-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .report-header {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .report-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .report-header p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .filter-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .filter-item label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+        
+        .filter-item select,
+        .filter-item input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: var(--card-bg);
+        }
+        
+        .filter-item select:focus,
+        .filter-item input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .btn-generate {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-generate:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .stat-icon.success {
+            background: rgba(0, 184, 148, 0.1);
+        }
+        
+        .stat-icon.warning {
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .stat-icon.danger {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .stat-icon.info {
+            background: rgba(95, 201, 175, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .stat-trend {
+            font-size: 12px;
+            color: var(--success-color);
+            margin-top: 8px;
+        }
+        
+        .stat-trend.down {
+            color: var(--danger-color);
+        }
+        
+        .report-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .btn-export {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-export:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .patients-table {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--bg-color);
+        }
+        
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #636e72;
+            text-transform: uppercase;
+        }
+        
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: var(--bg-color);
+        }
+        
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        
+        .patient-name {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .patient-id {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .adherence-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        
+        .adherence-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .adherence-fill.high {
+            background: var(--success-color);
+        }
+        
+        .adherence-fill.medium {
+            background: var(--warning-color);
+        }
+        
+        .adherence-fill.low {
+            background: var(--danger-color);
+        }
+        
+        .adherence-percentage {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .adherence-percentage.high {
+            color: var(--success-color);
+        }
+        
+        .adherence-percentage.medium {
+            color: var(--warning-color);
+        }
+        
+        .adherence-percentage.low {
+            color: var(--danger-color);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .status-badge.excellent {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-badge.good {
+            background: rgba(95, 201, 175, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .status-badge.fair {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-badge.poor {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bar {
+            width: 100%;
+            background: var(--primary-color);
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .bar:hover {
+            opacity: 0.8;
+        }
+        
+        .bar-value {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+        
+        .bar-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a class="nav-link" onclick="navigateToDashboard()">Dashboard</a>
+        <a class="nav-link" onclick="navigateToSchedule()">Schedule</a>
+        <a class="nav-link" onclick="navigateToMedicine()">Medicine</a>
+        <a class="nav-link active">Report</a>
+    </div>
+    
+    <div class="report-container">
+        <div class="report-header">
+            <h1>
+                Patient Adherence Report
+            </h1>
+            <p>Monitor medication adherence across all patients</p>
+        </div>
+        
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>Date Range</label>
+                    <select id="dateRange">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="90">Last 90 Days</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Patient</label>
+                    <select id="patientFilter">
+                        <option value="all">All Patients</option>
+                        <option value="patient1">Wayan Bagus</option>
+                        <option value="patient2">Bagus Wayan</option>
+                        <option value="patient3">Made Artha</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Status</label>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="excellent">Excellent (≥90%)</option>
+                        <option value="good">Good (70-89%)</option>
+                        <option value="fair">Fair (50-69%)</option>
+                        <option value="poor">Poor (<50%)</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="display: flex; align-items: flex-end;">
+                    <button class="btn-generate" onclick="generateReport()">
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">87.5%</div>
+                        <div class="stat-label">Overall Adherence</div>
+                        <div class="stat-trend">↑ 5.2% from last month</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M96 96C113.7 96 128 110.3 128 128L128 464C128 472.8 135.2 480 144 480L544 480C561.7 480 576 494.3 576 512C576 529.7 561.7 544 544 544L144 544C99.8 544 64 508.2 64 464L64 128C64 110.3 78.3 96 96 96zM208 288C225.7 288 240 302.3 240 320L240 384C240 401.7 225.7 416 208 416C190.3 416 176 401.7 176 384L176 320C176 302.3 190.3 288 208 288zM352 224L352 384C352 401.7 337.7 416 320 416C302.3 416 288 401.7 288 384L288 224C288 206.3 302.3 192 320 192C337.7 192 352 206.3 352 224zM432 256C449.7 256 464 270.3 464 288L464 384C464 401.7 449.7 416 432 416C414.3 416 400 401.7 400 384L400 288C400 270.3 414.3 256 432 256zM576 160L576 384C576 401.7 561.7 416 544 416C526.3 416 512 401.7 512 384L512 160C512 142.3 526.3 128 544 128C561.7 128 576 142.3 576 160z"/></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Total Patients</div>
+                        <div class="stat-trend">↑ 3 new this month</div>
+                    </div>
+                    <div class="stat-icon info">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M320 80C377.4 80 424 126.6 424 184C424 241.4 377.4 288 320 288C262.6 288 216 241.4 216 184C216 126.6 262.6 80 320 80zM96 152C135.8 152 168 184.2 168 224C168 263.8 135.8 296 96 296C56.2 296 24 263.8 24 224C24 184.2 56.2 152 96 152zM0 480C0 409.3 57.3 352 128 352C140.8 352 153.2 353.9 164.9 357.4C132 394.2 112 442.8 112 496L112 512C112 523.4 114.4 534.2 118.7 544L32 544C14.3 544 0 529.7 0 512L0 480zM521.3 544C525.6 534.2 528 523.4 528 512L528 496C528 442.8 508 394.2 475.1 357.4C486.8 353.9 499.2 352 512 352C582.7 352 640 409.3 640 480L640 512C640 529.7 625.7 544 608 544L521.3 544zM472 224C472 184.2 504.2 152 544 152C583.8 152 616 184.2 616 224C616 263.8 583.8 296 544 296C504.2 296 472 263.8 472 224zM160 496C160 407.6 231.6 336 320 336C408.4 336 480 407.6 480 496L480 512C480 529.7 465.7 544 448 544L192 544C174.3 544 160 529.7 160 512L160 496z"/></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Scheduled Doses</div>
+                        <div class="stat-trend">This month</div>
+                    </div>
+                    <div class="stat-icon info">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M128 176C128 149.5 149.5 128 176 128C202.5 128 224 149.5 224 176L224 288L128 288L128 176zM64 176L64 464C64 525.9 114.1 576 176 576C237.9 576 288 525.9 288 464L288 358.2L404.3 527.7C439.8 579.4 509.6 592 560.3 555.8C611 519.6 623.3 448.3 587.8 396.6L459.3 209.3C423.8 157.6 354 145 303.3 181.2C297.7 185.2 292.6 189.6 288 194.3L288 176C288 114.1 237.9 64 176 64C114.1 64 64 114.1 64 176zM328.6 304.2C312.6 280.9 318.6 248.9 340.5 233.2C361.7 218.1 391 222.9 406.5 245.4L473.5 343L393.6 398.9L328.6 304.1z"/></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Missed Doses</div>
+                        <div class="stat-trend down">↓ 8 from last month</div>
+                    </div>
+                    <div class="stat-icon danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ff6b6b" d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-section">
+            <div class="section-header">
+                <h2 class="section-title">Adherence Trend (Last 30 Days)</h2>
+                <button class="btn-export" onclick="exportChart()">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M352 96C352 78.3 337.7 64 320 64C302.3 64 288 78.3 288 96L288 306.7L246.6 265.3C234.1 252.8 213.8 252.8 201.3 265.3C188.8 277.8 188.8 298.1 201.3 310.6L297.3 406.6C309.8 419.1 330.1 419.1 342.6 406.6L438.6 310.6C451.1 298.1 451.1 277.8 438.6 265.3C426.1 252.8 405.8 252.8 393.3 265.3L352 306.7L352 96zM160 384C124.7 384 96 412.7 96 448L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 448C544 412.7 515.3 384 480 384L433.1 384L376.5 440.6C345.3 471.8 294.6 471.8 263.4 440.6L206.9 384L160 384zM464 440C477.3 440 488 450.7 488 464C488 477.3 477.3 488 464 488C450.7 488 440 477.3 440 464C440 450.7 450.7 440 464 440z"/></svg>
+                    </span>
+                    <span>Export</span>
+                </button>
+            </div>
+            <div class="chart-container" id="adherenceChart">
+                <!-- Chart will be rendered here -->
+            </div>
+        </div>
+        
+        <div class="report-section">
+            <div class="section-header">
+                <h2 class="section-title">Patient Adherence Details</h2>
+                <button class="btn-export" onclick="exportTable()">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M352 96C352 78.3 337.7 64 320 64C302.3 64 288 78.3 288 96L288 306.7L246.6 265.3C234.1 252.8 213.8 252.8 201.3 265.3C188.8 277.8 188.8 298.1 201.3 310.6L297.3 406.6C309.8 419.1 330.1 419.1 342.6 406.6L438.6 310.6C451.1 298.1 451.1 277.8 438.6 265.3C426.1 252.8 405.8 252.8 393.3 265.3L352 306.7L352 96zM160 384C124.7 384 96 412.7 96 448L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 448C544 412.7 515.3 384 480 384L433.1 384L376.5 440.6C345.3 471.8 294.6 471.8 263.4 440.6L206.9 384L160 384zM464 440C477.3 440 488 450.7 488 464C488 477.3 477.3 488 464 488C450.7 488 440 477.3 440 464C440 450.7 450.7 440 464 440z"/></svg>
+                    </span>
+                    <span>Export CSV</span>
+                </button>
+            </div>
+            
+            <div class="patients-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Adherence Rate</th>
+                            <th>Scheduled</th>
+                            <th>Completed</th>
+                            <th>Missed</th>
+                            <th>Status</th>
+                            <th>Last Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <!-- Data will be rendered here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                primaryColor: params.get('primaryColor') || '#57CC99',
+                textColor: params.get('textColor') || '#212121',
+                backgroundColor: params.get('backgroundColor') || '#FBFBFB',
+                cardBackground: params.get('cardBackground') || '#ffffff',
+                borderColor: params.get('borderColor') || '#e0e0e0',
+                successColor: params.get('successColor') || '#00b894',
+                warningColor: params.get('warningColor') || '#ff9800',
+                dangerColor: params.get('dangerColor') || '#ff6b6b',
+                apiKey: params.get('apiKey')
+            };
+        }
+        
+        function applyTheme() {
+            const params = getUrlParams();
+            document.documentElement.style.setProperty('--primary-color', params.primaryColor);
+            document.documentElement.style.setProperty('--text-color', params.textColor);
+            document.documentElement.style.setProperty('--bg-color', params.backgroundColor);
+            document.documentElement.style.setProperty('--card-bg', params.cardBackground);
+            document.documentElement.style.setProperty('--border-color', params.borderColor);
+            document.documentElement.style.setProperty('--success-color', params.successColor);
+            document.documentElement.style.setProperty('--warning-color', params.warningColor);
+            document.documentElement.style.setProperty('--danger-color', params.dangerColor);
+        }
+        
+        // Sample report data
+        const reportData = [
+            {
+                id: 'patient1',
+                name: 'Wayan Bagus',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
+                adherenceRate: 92,
+                scheduled: 30,
+                completed: 28,
+                missed: 2,
+                lastTaken: '2 hours ago'
+            },
+            {
+                id: 'patient2',
+                name: 'Bagus Wayan',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100',
+                adherenceRate: 85,
+                scheduled: 28,
+                completed: 24,
+                missed: 4,
+                lastTaken: '5 hours ago'
+            },
+            {
+                id: 'patient3',
+                name: 'Made Artha',
+                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100',
+                adherenceRate: 67,
+                scheduled: 25,
+                completed: 17,
+                missed: 8,
+                lastTaken: '1 day ago'
+            }
+        ];
+        
+        // Adherence trend data (last 30 days)
+        const trendData = [
+            { day: 'Week 1', rate: 85 },
+            { day: 'Week 2', rate: 88 },
+            { day: 'Week 3', rate: 82 },
+            { day: 'Week 4', rate: 90 }
+        ];
+        
+        function getAdherenceStatus(rate) {
+            if (rate >= 90) return 'excellent';
+            if (rate >= 70) return 'good';
+            if (rate >= 50) return 'fair';
+            return 'poor';
+        }
+        
+        function getAdherenceLabel(status) {
+            const labels = {
+                excellent: 'Excellent',
+                good: 'Good',
+                fair: 'Fair',
+                poor: 'Poor'
+            };
+            return labels[status] || 'Unknown';
+        }
+        
+        function renderTable() {
+            const tbody = document.getElementById('reportTableBody');
+            
+            tbody.innerHTML = reportData.map(patient => {
+                const status = getAdherenceStatus(patient.adherenceRate);
+                return `
+                    <tr>
+                        <td>
+                            <div class="patient-info">
+                                <div class="patient-avatar" style="background-image: url('${patient.avatar}')"></div>
+                                <div>
+                                    <div class="patient-name">${patient.name}</div>
+                                    <div class="patient-id">ID: ${patient.id}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="adherence-percentage ${status}">${patient.adherenceRate}%</div>
+                            <div class="adherence-bar">
+                                <div class="adherence-fill ${status}" style="width: ${patient.adherenceRate}%"></div>
+                            </div>
+                        </td>
+                        <td><strong>${patient.scheduled}</strong></td>
+                        <td><strong style="color: var(--success-color);">${patient.completed}</strong></td>
+                        <td><strong style="color: var(--danger-color);">${patient.missed}</strong></td>
+                        <td>
+                            <span class="status-badge ${status}">
+                                ${getAdherenceLabel(status)}
+                            </span>
+                        </td>
+                        <td>${patient.lastTaken}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function renderChart() {
+            const container = document.getElementById('adherenceChart');
+            const maxRate = Math.max(...trendData.map(d => d.rate));
+            
+            container.innerHTML = trendData.map(data => {
+                const height = (data.rate / maxRate) * 200;
+                return `
+                    <div class="chart-bar">
+                        <div class="bar" style="height: ${height}px;">
+                            <div class="bar-value">${data.rate}%</div>
+                        </div>
+                        <div class="bar-label">${data.day}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateReport() {
+            const dateRange = document.getElementById('dateRange').value;
+            const patient = document.getElementById('patientFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            console.log('Generating report with filters:', { dateRange, patient, status });
+            
+            // In real implementation, this would fetch data from API
+            renderTable();
+            renderChart();
+            
+            sendMessage('report-generated', { dateRange, patient, status });
+        }
+        
+        function exportChart() {
+            alert('Chart export functionality would be implemented here');
+        }
+        
+        function exportTable() {
+            alert('CSV export functionality would be implemented here');
+        }
+        
+        function navigateToDashboard() {
+            sendMessage('navigate', { view: 'dashboard' });
+        }
+        
+        function navigateToSchedule() {
+            sendMessage('navigate', { view: 'schedule' });
+        }
+        
+        function navigateToMedicine() {
+            sendMessage('navigate', { view: 'medicine' });
+        }
+        
+        function sendMessage(type, data) {
+            window.parent.postMessage({ type, ...data }, '*');
+        }
+        
+        function sendResize() {
+            const height = Math.max(document.body.scrollHeight, 1200);
+            sendMessage('resize', { height });
+        }
+        
+        applyTheme();
+        renderTable();
+        renderChart();
+        setTimeout(sendResize, 100);
+        new ResizeObserver(sendResize).observe(document.body);
+    </script>
+</body>
+</html>

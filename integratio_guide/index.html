@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo & Integration Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+            background: linear-gradient(135deg, #57CC99 0%, #1C7947 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .demo-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .demo-header p {
+            font-size: 18px;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-icon {
+            font-size: 28px;
+        }
+        
+        .section-description {
+            font-size: 15px;
+            color: #636e72;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 12px;
+            padding: 24px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-keyword {
+            color: #57CC99;
+        }
+        
+        .code-string {
+            color: #ce9178;
+        }
+        
+        .code-comment {
+            color: #1C7947;
+        }
+        
+        .code-function {
+            color: #dcdcaa;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .control-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .control-input:focus {
+            outline: none;
+            border-color: #57CC99;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .control-color {
+            height: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #57CC99 0%, #1C7947 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #2d3436;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+        
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        .widget-wrapper {
+            background: #f5f5f5;
+            border-radius: 16px;
+            padding: 24px;
+            min-height: 400px;
+        }
+        
+        .event-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .event-log::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .event-log::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
+        }
+        
+        .event-log::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        .event-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-left: 3px solid #57CC99;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+        }
+        
+        .event-time {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        
+        .event-type {
+            color: #57CC99;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .event-data {
+            color: #a8dadc;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #57CC99 0%, #1C7947 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+        
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .feature-description {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .api-table th {
+            background: #f8f9fa;
+            padding: 14px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2d3436;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .api-table td {
+            padding: 14px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #636e72;
+        }
+        
+        .api-table code {
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #667eea;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #636e72;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .tab.active {
+            color: #57CC99;
+            border-bottom-color: #57CC99;
+        }
+        
+        .tab:hover {
+            color: #57CC99;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 32px;
+            }
+            
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <img src="logo.png" height="100" alt="">
+        <h1>Demo & Integration Guide</h1>
+        <p>Embeddable patient medication management system for your healthcare application</p>
+    </div>
+    
+    <div class="demo-container">
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="32"><path d="M264 88C264 57.1 289.1 32 320 32C350.9 32 376 57.1 376 88L376 215.3L549.6 374.5C556.2 380.6 560 389.1 560 398.1L560 441.8C560 452.7 549.3 460.4 538.9 457L376 402.7L376 502.4L442 555.2C445.8 558.2 448 562.8 448 567.7L448 587.5C448 597.9 438.2 605.5 428.1 603L320 576L211.9 603C201.8 605.5 192 597.9 192 587.5L192 567.7C192 562.8 194.2 558.2 198 555.2L264 502.4L264 402.7L101.1 457C90.7 460.4 80 452.7 80 441.8L80 398.1C80 389.1 83.8 380.6 90.4 374.5L264 215.3L264 88z"/></svg>
+                </span>
+                Quick Start
+            </h2>
+            <p class="section-description">
+                Get started in seconds by adding a single script tag to your HTML. The widget will automatically initialize and create a container.
+            </p>
+            
+            <div class="code-block" data-lang="HTML">
+<span class="code-comment">&lt;!-- Add this to your HTML --&gt;</span>
+<br>
+<span class="code-keyword">&lt;script</span> <span class="code-string">src="http://127.0.0.1:5500/embed/index.js"</span>
+        <span class="code-string">data-api-key="your-api-key-here"</span>
+        <span class="code-string">data-primary-color="#5fc9af"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+<br>
+<span class="code-comment">&lt;!-- Or create a custom container --&gt;</span>
+<br>
+<span class="code-keyword">&lt;div</span><span class="code-string"> id="patient-widget"</span><span class="code-keyword">&gt;&lt;/div&gt;</span>
+<br>
+<span class="code-keyword">&lt;script</span> <span class="code-string">src="http://127.0.0.1:5500/embed/index.js"</span>
+        <span class="code-string">data-container-id="patient-widget"</span>
+        <span class="code-string">data-api-key="your-api-key"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+            </div>
+        </div>
+        
+        <!-- Features -->
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="32"><path d="M353.8 118.1L330.2 70.3C326.3 62 314.1 61.7 309.8 70.3L286.2 118.1L233.9 125.6C224.6 127 220.6 138.5 227.5 145.4L265.5 182.4L256.5 234.5C255.1 243.8 264.7 251 273.3 246.7L320.2 221.9L366.8 246.3C375.4 250.6 385.1 243.4 383.6 234.1L374.6 182L412.6 145.4C419.4 138.6 415.5 127.1 406.2 125.6L353.9 118.1zM288 320C261.5 320 240 341.5 240 368L240 528C240 554.5 261.5 576 288 576L352 576C378.5 576 400 554.5 400 528L400 368C400 341.5 378.5 320 352 320L288 320zM80 384C53.5 384 32 405.5 32 432L32 528C32 554.5 53.5 576 80 576L144 576C170.5 576 192 554.5 192 528L192 432C192 405.5 170.5 384 144 384L80 384zM448 496L448 528C448 554.5 469.5 576 496 576L560 576C586.5 576 608 554.5 608 528L608 496C608 469.5 586.5 448 560 448L496 448C469.5 448 448 469.5 448 496z"/></svg>
+                </span>
+                Key Features
+            </h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#fff" d="M128 128C128 110.3 113.7 96 96 96C78.3 96 64 110.3 64 128L64 464C64 508.2 99.8 544 144 544L544 544C561.7 544 576 529.7 576 512C576 494.3 561.7 480 544 480L144 480C135.2 480 128 472.8 128 464L128 128zM534.6 214.6C547.1 202.1 547.1 181.8 534.6 169.3C522.1 156.8 501.8 156.8 489.3 169.3L384 274.7L326.6 217.4C314.1 204.9 293.8 204.9 281.3 217.4L185.3 313.4C172.8 325.9 172.8 346.2 185.3 358.7C197.8 371.2 218.1 371.2 230.6 358.7L304 285.3L361.4 342.7C373.9 355.2 394.2 355.2 406.7 342.7L534.7 214.7z"/></svg>
+                    </div>
+                    <div class="feature-title">Dashboard</div>
+                    <div class="feature-description">
+                        Comprehensive overview of patients, medication schedules, and vital signs
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#fff" d="M128 176C128 149.5 149.5 128 176 128C202.5 128 224 149.5 224 176L224 288L128 288L128 176zM64 176L64 464C64 525.9 114.1 576 176 576C237.9 576 288 525.9 288 464L288 358.2L404.3 527.7C439.8 579.4 509.6 592 560.3 555.8C611 519.6 623.3 448.3 587.8 396.6L459.3 209.3C423.8 157.6 354 145 303.3 181.2C297.7 185.2 292.6 189.6 288 194.3L288 176C288 114.1 237.9 64 176 64C114.1 64 64 114.1 64 176zM328.6 304.2C312.6 280.9 318.6 248.9 340.5 233.2C361.7 218.1 391 222.9 406.5 245.4L473.5 343L393.6 398.9L328.6 304.1z"/></svg>
+                    </div>
+                    <div class="feature-title">Medicine Management</div>
+                    <div class="feature-description">
+                        Track medicine inventory, stock levels, and expiration dates
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#ffff" d="M224 64C241.7 64 256 78.3 256 96L256 128L384 128L384 96C384 78.3 398.3 64 416 64C433.7 64 448 78.3 448 96L448 128L480 128C515.3 128 544 156.7 544 192L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 192C96 156.7 124.7 128 160 128L192 128L192 96C192 78.3 206.3 64 224 64zM160 304L160 336C160 344.8 167.2 352 176 352L208 352C216.8 352 224 344.8 224 336L224 304C224 295.2 216.8 288 208 288L176 288C167.2 288 160 295.2 160 304zM288 304L288 336C288 344.8 295.2 352 304 352L336 352C344.8 352 352 344.8 352 336L352 304C352 295.2 344.8 288 336 288L304 288C295.2 288 288 295.2 288 304zM432 288C423.2 288 416 295.2 416 304L416 336C416 344.8 423.2 352 432 352L464 352C472.8 352 480 344.8 480 336L480 304C480 295.2 472.8 288 464 288L432 288zM160 432L160 464C160 472.8 167.2 480 176 480L208 480C216.8 480 224 472.8 224 464L224 432C224 423.2 216.8 416 208 416L176 416C167.2 416 160 423.2 160 432zM304 416C295.2 416 288 423.2 288 432L288 464C288 472.8 295.2 480 304 480L336 480C344.8 480 352 472.8 352 464L352 432C352 423.2 344.8 416 336 416L304 416zM416 432L416 464C416 472.8 423.2 480 432 480L464 480C472.8 480 480 472.8 480 464L480 432C480 423.2 472.8 416 464 416L432 416C423.2 416 416 423.2 416 432z"/></svg>
+                    </div>
+                    <div class="feature-title">Schedule Tracking</div>
+                    <div class="feature-description">
+                        Monitor medication schedules and patient adherence in real-time
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#ffff" d="M128 128C128 92.7 156.7 64 192 64L341.5 64C358.5 64 374.8 70.7 386.8 82.7L493.3 189.3C505.3 201.3 512 217.6 512 234.6L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 128zM336 122.5L336 216C336 229.3 346.7 240 360 240L453.5 240L336 122.5zM288 344L288 384L248 384C239.2 384 232 391.2 232 400L232 432C232 440.8 239.2 448 248 448L288 448L288 488C288 496.8 295.2 504 304 504L336 504C344.8 504 352 496.8 352 488L352 448L392 448C400.8 448 408 440.8 408 432L408 400C408 391.2 400.8 384 392 384L352 384L352 344C352 335.2 344.8 328 336 328L304 328C295.2 328 288 335.2 288 344z"/></svg>
+                    </div>
+                    <div class="feature-title">Prescriptions</div>
+                    <div class="feature-description">
+                        Create and manage medication prescriptions with detailed scheduling
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#ffff" d="M544.4 304L368.4 304C350.7 304 336.4 289.7 336.4 272L336.4 96C336.4 78.3 350.8 63.8 368.3 66.1C475.3 80.3 560.1 165.1 574.3 272.1C576.6 289.6 562.1 304 544.4 304zM254.6 101.2C272.7 97.4 288.4 112.2 288.4 130.7L288.4 328C288.4 333.6 290.4 339 293.9 343.3L426 502.7C437.7 516.8 435.2 538.1 419.1 546.8C385 565.4 345.9 576 304.4 576C171.9 576 64.4 468.5 64.4 336C64.4 220.5 145.9 124.1 254.6 101.2zM509.8 352L573.8 352C592.3 352 607.1 367.7 603.3 385.8C593.1 434.2 568.3 477.2 533.7 510C521.4 521.7 502.1 519.2 491.3 506.1L406.9 404.4C389.6 383.5 404.5 352 431.5 352L509.7 352z"/></svg>
+                    </div>
+                    <div class="feature-title">Adherence Reports</div>
+                    <div class="feature-description">
+                        Generate detailed adherence reports across all patients
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path fill="#ffff" d="M576 320C576 320.9 576 321.8 576 322.7C575.6 359.2 542.4 384 505.9 384L408 384C381.5 384 360 405.5 360 432C360 435.4 360.4 438.7 361 441.9C363.1 452.1 367.5 461.9 371.8 471.8C377.9 485.6 383.9 499.3 383.9 513.8C383.9 545.6 362.3 574.5 330.5 575.8C327 575.9 323.5 576 319.9 576C178.5 576 63.9 461.4 63.9 320C63.9 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320zM192 352C192 334.3 177.7 320 160 320C142.3 320 128 334.3 128 352C128 369.7 142.3 384 160 384C177.7 384 192 369.7 192 352zM192 256C209.7 256 224 241.7 224 224C224 206.3 209.7 192 192 192C174.3 192 160 206.3 160 224C160 241.7 174.3 256 192 256zM352 160C352 142.3 337.7 128 320 128C302.3 128 288 142.3 288 160C288 177.7 302.3 192 320 192C337.7 192 352 177.7 352 160zM448 256C465.7 256 480 241.7 480 224C480 206.3 465.7 192 448 192C430.3 192 416 206.3 416 224C416 241.7 430.3 256 448 256z"/></svg>
+                    </div>
+                    <div class="feature-title">Customizable</div>
+                    <div class="feature-description">
+                        Fully customizable theme colors to match your brand
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Theme Customization -->
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path d="M576 320C576 320.9 576 321.8 576 322.7C575.6 359.2 542.4 384 505.9 384L408 384C381.5 384 360 405.5 360 432C360 435.4 360.4 438.7 361 441.9C363.1 452.1 367.5 461.9 371.8 471.8C377.9 485.6 383.9 499.3 383.9 513.8C383.9 545.6 362.3 574.5 330.5 575.8C327 575.9 323.5 576 319.9 576C178.5 576 63.9 461.4 63.9 320C63.9 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320zM192 352C192 334.3 177.7 320 160 320C142.3 320 128 334.3 128 352C128 369.7 142.3 384 160 384C177.7 384 192 369.7 192 352zM192 256C209.7 256 224 241.7 224 224C224 206.3 209.7 192 192 192C174.3 192 160 206.3 160 224C160 241.7 174.3 256 192 256zM352 160C352 142.3 337.7 128 320 128C302.3 128 288 142.3 288 160C288 177.7 302.3 192 320 192C337.7 192 352 177.7 352 160zM448 256C465.7 256 480 241.7 480 224C480 206.3 465.7 192 448 192C430.3 192 416 206.3 416 224C416 241.7 430.3 256 448 256z"/></svg>
+                </span>
+                Theme Customization
+            </h2>
+            <p class="section-description">
+                Customize the widget's appearance to match your brand identity. Change colors in real-time and see the results immediately.
+            </p>
+            
+            <div class="controls-grid">
+                <div class="control-item">
+                    <label class="control-label">
+                        Primary Color
+                    </label>
+                    <input type="color" class="control-input control-color" id="primaryColor" value="#57CC99">
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label">
+                        Text Color
+                    </label>
+                    <input type="color" class="control-input control-color" id="textColor" value="#212121">
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label">
+                        Background Color
+                    </label>
+                    <input type="color" class="control-input control-color" id="backgroundColor" value="#FBFBFB">
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label">
+                        Card Background
+                    </label>
+                    <input type="color" class="control-input control-color" id="cardBackground" value="#ffffff">
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label">
+                        Success Color
+                    </label>
+                    <input type="color" class="control-input control-color" id="successColor" value="#00b894">
+                </div>
+                
+                <div class="control-item">
+                    <label class="control-label">
+                        Warning Color
+                    </label>
+                    <input type="color" class="control-input control-color" id="warningColor" value="#ff9800">
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="applyTheme()">
+                    Apply Theme
+                </button>
+                <button class="btn btn-secondary" onclick="resetTheme()">
+                    Reset to Default
+                </button>
+                <button class="btn btn-secondary" onclick="copyThemeCode()">
+                    Copy Theme Code
+                </button>
+            </div>
+        </div>
+        
+        <!-- Widget Preview -->
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path d="M320 96C239.2 96 174.5 132.8 127.4 176.6C80.6 220.1 49.3 272 34.4 307.7C31.1 315.6 31.1 324.4 34.4 332.3C49.3 368 80.6 420 127.4 463.4C174.5 507.1 239.2 544 320 544C400.8 544 465.5 507.2 512.6 463.4C559.4 419.9 590.7 368 605.6 332.3C608.9 324.4 608.9 315.6 605.6 307.7C590.7 272 559.4 220 512.6 176.6C465.5 132.9 400.8 96 320 96zM176 320C176 240.5 240.5 176 320 176C399.5 176 464 240.5 464 320C464 399.5 399.5 464 320 464C240.5 464 176 399.5 176 320zM320 256C320 291.3 291.3 320 256 320C244.5 320 233.7 317 224.3 311.6C223.3 322.5 224.2 333.7 227.2 344.8C240.9 396 293.6 426.4 344.8 412.7C396 399 426.4 346.3 412.7 295.1C400.5 249.4 357.2 220.3 311.6 224.3C316.9 233.6 320 244.4 320 256z"/></svg>
+                </span>
+                Live Preview
+            </h2>
+            <p class="section-description">
+                Interact with the widget below. Try navigating between different views, adding medicines, creating prescriptions, and exploring the features.
+            </p>
+            
+            <div class="widget-wrapper">
+                <div id="patient-widget"></div>
+            </div>
+        </div>
+        
+        <!-- Event Log -->
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path d="M192 112L304 112L304 200C304 239.8 336.2 272 376 272L464 272L464 512C464 520.8 456.8 528 448 528L192 528C183.2 528 176 520.8 176 512L176 128C176 119.2 183.2 112 192 112zM352 131.9L444.1 224L376 224C362.7 224 352 213.3 352 200L352 131.9zM192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 250.5C512 233.5 505.3 217.2 493.3 205.2L370.7 82.7C358.7 70.7 342.5 64 325.5 64L192 64zM248 320C234.7 320 224 330.7 224 344C224 357.3 234.7 368 248 368L392 368C405.3 368 416 357.3 416 344C416 330.7 405.3 320 392 320L248 320zM248 416C234.7 416 224 426.7 224 440C224 453.3 234.7 464 248 464L392 464C405.3 464 416 453.3 416 440C416 426.7 405.3 416 392 416L248 416z"/></svg>
+                </span>
+                Event Log
+            </h2>
+            <p class="section-description">
+                Monitor all widget events in real-time. Events are triggered when users interact with the widget, allowing you to respond to actions in your application.
+            </p>
+            
+            <div class="event-log" id="eventLog">
+                <div class="event-item">
+                    <div class="event-time">Waiting for events...</div>
+                    <div class="event-type">System Ready</div>
+                    <div class="event-data">Widget initialized and ready to receive events</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Documentation -->
+        <div class="demo-section">
+            <h2 class="section-title">
+                <span class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="40"><path d="M480 576L192 576C139 576 96 533 96 480L96 160C96 107 139 64 192 64L496 64C522.5 64 544 85.5 544 112L544 400C544 420.9 530.6 438.7 512 445.3L512 512C529.7 512 544 526.3 544 544C544 561.7 529.7 576 512 576L480 576zM192 448C174.3 448 160 462.3 160 480C160 497.7 174.3 512 192 512L448 512L448 448L192 448zM224 216C224 229.3 234.7 240 248 240L424 240C437.3 240 448 229.3 448 216C448 202.7 437.3 192 424 192L248 192C234.7 192 224 202.7 224 216zM248 288C234.7 288 224 298.7 224 312C224 325.3 234.7 336 248 336L424 336C437.3 336 448 325.3 448 312C448 298.7 437.3 288 424 288L248 288z"/></svg>
+                </span>
+                API Documentation
+            </h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('attributes')">Attributes</button>
+                <button class="tab" onclick="switchTab('methods')">Methods</button>
+                <button class="tab" onclick="switchTab('events')">Events</button>
+                <button class="tab" onclick="switchTab('examples')">Examples</button>
+            </div>
+            
+            <div id="tab-attributes" class="tab-content active">
+                <h3 style="margin-bottom: 16px; color: #2d3436;">Script Attributes</h3>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Description</th>
+                            <th>Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>data-api-key</code></td>
+                            <td>Your API authentication key</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-container-id</code></td>
+                            <td>ID of the container element</td>
+                            <td>patient-widget</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-primary-color</code></td>
+                            <td>Main theme color</td>
+                            <td>#57CC99</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-text-color</code></td>
+                            <td>Primary text color</td>
+                            <td>#212121</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-background-color</code></td>
+                            <td>Page background color</td>
+                            <td>#FBFBFB</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-card-background</code></td>
+                            <td>Card/container background</td>
+                            <td>#FFFFFF</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="tab-methods" class="tab-content">
+                <h3 style="margin-bottom: 16px; color: #2d3436;">JavaScript Methods</h3>
+                <div class="code-block" data-lang="JavaScript">
+<span class="code-comment">// Get widget instance</span>
+<br>
+<span class="code-keyword">const</span> widget = <span class="code-keyword">window</span>.patientWidgetInstance;
+<br>
+<span class="code-comment">// Navigate to different views</span>
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'dashboard'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'schedule'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'medicine'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'report'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'detail'</span>, <span class="code-string">'patient1'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'add-medicine'</span>);
+<br>
+widget.<span class="code-function">navigateTo</span>(<span class="code-string">'add-prescription'</span>);
+<br>
+
+<span class="code-comment">// Update theme dynamically</span>
+<br>
+widget.<span class="code-function">setTheme</span>({
+    primaryColor: <span class="code-string">'#ff6b6b'</span>,
+    textColor: <span class="code-string">'#2d3436'</span>
+});
+<br>
+<span class="code-comment">// Reload widget</span>
+<br>
+widget.<span class="code-function">reload</span>();
+<br>
+
+<span class="code-comment">// Destroy widget</span>
+<br>
+widget.<span class="code-function">destroy</span>();
+                </div>
+            </div>
+            
+            <div id="tab-events" class="tab-content">
+                <h3 style="margin-bottom: 16px; color: #2d3436;">Widget Events</h3>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Description</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>patient-widget:navigate</code></td>
+                            <td>Fired when navigating between views</td>
+                            <td>{ view, patientId }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:patient-selected</code></td>
+                            <td>Fired when a patient is selected</td>
+                            <td>{ patientId }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:medicine-saved</code></td>
+                            <td>Fired when medicine is saved</td>
+                            <td>{ medicine data }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:prescription-saved</code></td>
+                            <td>Fired when prescription is saved</td>
+                            <td>{ prescription data }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:schedule-deleted</code></td>
+                            <td>Fired when schedule is deleted</td>
+                            <td>{ scheduleId }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:medicine-deleted</code></td>
+                            <td>Fired when medicine is deleted</td>
+                            <td>{ medicineId }</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient-widget:report-generated</code></td>
+                            <td>Fired when report is generated</td>
+                            <td>{ filters }</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="code-block" data-lang="JavaScript" style="margin-top: 20px;">
+<span class="code-comment">// Listen to events</span>
+<br>
+<span class="code-keyword">const</span> container = document.<span class="code-function">getElementById</span>(<span class="code-string">'patient-widget'</span>);
+<br>
+
+container.<span class="code-function">addEventListener</span>(<span class="code-string">'patient-widget:navigate'</span>, <span class="code-keyword">function</span>(e) {
+    console.<span class="code-function">log</span>(<span class="code-string">'Navigation:'</span>, e.detail);
+});
+<br>
+
+container.<span class="code-function">addEventListener</span>(<span class="code-string">'patient-widget:medicine-saved'</span>, <span class="code-keyword">function</span>(e) {
+    console.<span class="code-function">log</span>(<span class="code-string">'Medicine saved:'</span>, e.detail);
+    <br>
+    <span class="code-comment">// Sync with your backend</span>
+});
+                </div>
+            </div>
+            
+            <div id="tab-examples" class="tab-content">
+                <h3 style="margin-bottom: 16px; color: #2d3436;">Usage Examples</h3>
+                
+                <h4 style="margin: 20px 0 12px; color: #636e72;">Basic Integration</h4>
+                <div class="code-block" data-lang="HTML">
+<span class="code-keyword">&lt;!DOCTYPE html&gt;</span>
+<br>
+<span class="code-keyword">&lt;html&gt;</span>
+<br>
+<span class="code-keyword">&lt;head&gt;</span>
+<br>
+    <span class="code-keyword">&lt;title&gt;</span>My Healthcare App<span class="code-keyword">&lt;/title&gt;</span>
+<br>
+<span class="code-keyword">&lt;/head&gt;</span>
+<br>
+<span class="code-keyword">&lt;body&gt;</span>
+<br>
+    <span class="code-keyword">&lt;h1&gt;</span>Patient Management<span class="code-keyword">&lt;/h1&gt;</span>
+    <br>
+    <span class="code-comment">&lt;!-- Widget will be inserted here --&gt;</span>
+    <br>
+    <span class="code-keyword">&lt;script</span> <span class="code-string">src="http://127.0.0.1:5500/embed/index.js"</span>
+    <br>
+            <span class="code-string">data-api-key="your-api-key"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+            <br>
+<span class="code-keyword">&lt;/body&gt;</span>
+<br>
+<span class="code-keyword">&lt;/html&gt;</span>
+<br>
+                </div>
+                
+                <h4 style="margin: 20px 0 12px; color: #636e72;">Custom Theme</h4>
+                <div class="code-block" data-lang="HTML">
+<span class="code-keyword">&lt;script</span> <span class="code-string">src="http://127.0.0.1:5500/embed/index.js"</span>
+        <span class="code-string">data-api-key="your-api-key"</span>
+        <span class="code-string">data-primary-color="#667eea"</span>
+        <span class="code-string">data-text-color="#2d3436"</span>
+        <span class="code-string">data-background-color="#f8f9fa"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+                </div>
+                
+                <h4 style="margin: 20px 0 12px; color: #636e72;">Event Handling</h4>
+                <div class="code-block" data-lang="JavaScript">
+<span class="code-keyword">const</span> widget = document.<span class="code-function">getElementById</span>(<span class="code-string">'patient-widget'</span>);
+<br>
+
+<span class="code-comment">// Track navigation</span>
+<br>
+widget.<span class="code-function">addEventListener</span>(<span class="code-string">'patient-widget:navigate'</span>, (e) => {
+    console.<span class="code-function">log</span>(<span class="code-string">'User navigated to:'</span>, e.detail.view);
+});
+<br>
+
+<span class="code-comment">// Sync medicine data</span>
+<br>
+widget.<span class="code-function">addEventListener</span>(<span class="code-string">'patient-widget:medicine-saved'</span>, <span class="code-keyword">async</span> (e) => {
+    <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'/api/medicines'</span>, {
+        method: <span class="code-string">'POST'</span>,
+        body: JSON.<span class="code-function">stringify</span>(e.detail)
+    });
+    <br>
+});
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="http://127.0.0.1:5500/embed/index.js" data-container-id="patient-widget"></script>
+    
+    <script>
+        // Wait for widget to initialize
+        setTimeout(() => {
+            const container = document.getElementById('patient-widget');
+            
+            // Listen to all events
+            const events = [
+                'navigate', 'patient-selected', 'medicine-saved', 
+                'prescription-saved', 'schedule-deleted', 'schedule-stopped',
+                'medicine-deleted', 'report-generated'
+            ];
+            
+            events.forEach(eventName => {
+                container.addEventListener(`patient-widget:${eventName}`, (e) => {
+                    logEvent(eventName, e.detail);
+                });
+            });
+        }, 1000);
+        
+        // Event logging
+        function logEvent(type, data) {
+            const log = document.getElementById('eventLog');
+            const time = new Date().toLocaleTimeString();
+            
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `
+                <div class="event-time">${time}</div>
+                <div class="event-type">${type}</div>
+                <div class="event-data">${JSON.stringify(data, null, 2)}</div>
+            `;
+            
+            log.insertBefore(item, log.firstChild);
+            
+            // Keep only last 20 events
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+        
+        // Theme controls
+        function applyTheme() {
+            const theme = {
+                primaryColor: document.getElementById('primaryColor').value,
+                textColor: document.getElementById('textColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                cardBackground: document.getElementById('cardBackground').value,
+                successColor: document.getElementById('successColor').value,
+                warningColor: document.getElementById('warningColor').value
+            };
+            
+            if (window.patientWidgetInstance) {
+                window.patientWidgetInstance.setTheme(theme);
+                logEvent('theme-updated', theme);
+            }
+        }
+        
+        function resetTheme() {
+            document.getElementById('primaryColor').value = '#57CC99';
+            document.getElementById('textColor').value = '#212121';
+            document.getElementById('backgroundColor').value = '#FBFBFB';
+            document.getElementById('cardBackground').value = '#ffffff';
+            document.getElementById('successColor').value = '#00b894';
+            document.getElementById('warningColor').value = '#ff9800';
+            applyTheme();
+        }
+        
+        function copyThemeCode() {
+            const theme = {
+                primaryColor: document.getElementById('primaryColor').value,
+                textColor: document.getElementById('textColor').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                cardBackground: document.getElementById('cardBackground').value,
+                successColor: document.getElementById('successColor').value,
+                warningColor: document.getElementById('warningColor').value
+            };
+            
+            const code = `<script src="http://127.0.0.1:5500/embed/index.js"
+        data-api-key="your-api-key"
+        data-primary-color="${theme.primaryColor}"
+        data-text-color="${theme.textColor}"
+        data-background-color="${theme.backgroundColor}"
+        data-card-background="${theme.cardBackground}"
+        data-success-color="${theme.successColor}"
+        data-warning-color="${theme.warningColor}"><\/script>`;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Theme code copied to clipboard!');
+            });
+        }
+        
+        function navigateTo(view, patientId = null) {
+            if (window.patientWidgetInstance) {
+                window.patientWidgetInstance.navigateTo(view, patientId);
+            }
+        }
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

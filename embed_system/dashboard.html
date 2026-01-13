@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Patient Medication</title>
+    <style>
+        :root {
+            --primary-color: #57CC99;
+            --text-color: #212121;
+            --bg-color: #FBFBFB;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00b894;
+            --warning-color: #ff9800;
+            --danger-color: #ff6b6b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--bg-color);
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        
+        .nav-link {
+            font-size: 20px;
+            color: #999;
+            text-decoration: none;
+            font-weight: 500;
+            padding-bottom: 5px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-link.active {
+            color: var(--text-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .nav-link:hover {
+            color: var(--text-color);
+        }
+        
+        .top-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+        
+        .action-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(95, 201, 175, 0.3);
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .left-section, .right-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .medication-timeline {
+            background: var(--primary-color);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .date-dropdown {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .timeline-hours {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: var(--text-color);
+        }
+        
+        .schedule-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .schedule-item {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .schedule-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .schedule-item:nth-child(2) { margin-left: 35%; }
+        .schedule-item:nth-child(3) { margin-left: 18%; }
+        
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid white;
+            flex-shrink: 0;
+        }
+        
+        .schedule-item span {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-color);
+            flex: 1;
+        }
+        
+        .patients-list {
+            background: var(--primary-color);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .list-header {
+            margin-bottom: 15px;
+        }
+        
+        .list-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+        
+        .list-subtitle {
+            font-size: 12px;
+            color: rgba(45, 52, 54, 0.6);
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        
+        .search-bar {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .search-bar input {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            flex: 1;
+            outline: none;
+            font-size: 13px;
+        }
+        
+        .search-bar input::placeholder {
+            color: rgba(45, 52, 54, 0.5);
+        }
+        
+        .patients-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f8f9fa;
+        }
+        
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #636e72;
+            text-transform: capitalize;
+        }
+        
+        td {
+            padding: 14px 12px;
+            font-size: 13px;
+            border-top: 1px solid #f0f0f0;
+            color: var(--text-color);
+        }
+        
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        tbody tr.active {
+            background: #e8f5f0 !important;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--success-color);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: transform 0.2s ease;
+        }
+        
+        .action-icon:hover {
+            transform: scale(1.2);
+        }
+        
+        .patient-card {
+            background: var(--primary-color);
+            border-radius: 20px;
+            padding: 25px;
+            position: relative;
+        }
+        
+        .patient-info {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .patient-photo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .patient-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .patient-details h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .patient-meta {
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.8;
+        }
+        
+        .patient-meta div {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .vital-signs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        
+        .vital-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 16px 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .vital-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+        
+        .vital-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        .vital-unit {
+            font-size: 10px;
+            color: #636e72;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-actions {
+                position: static;
+                margin-bottom: 20px;
+                justify-content: flex-start;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .vital-signs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-actions">
+        <button class="action-btn" onclick="navigateToAddMedicine()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M128 176C128 149.5 149.5 128 176 128C202.5 128 224 149.5 224 176L224 288L128 288L128 176zM64 176L64 464C64 525.9 114.1 576 176 576C237.9 576 288 525.9 288 464L288 358.2L404.3 527.7C439.8 579.4 509.6 592 560.3 555.8C611 519.6 623.3 448.3 587.8 396.6L459.3 209.3C423.8 157.6 354 145 303.3 181.2C297.7 185.2 292.6 189.6 288 194.3L288 176C288 114.1 237.9 64 176 64C114.1 64 64 114.1 64 176zM328.6 304.2C312.6 280.9 318.6 248.9 340.5 233.2C361.7 218.1 391 222.9 406.5 245.4L473.5 343L393.6 398.9L328.6 304.1z"/></svg>
+            </span>
+            <span>Add Medicine</span>
+        </button>
+        <button class="action-btn" onclick="navigateToAddPrescription()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M128 128C128 92.7 156.7 64 192 64L341.5 64C358.5 64 374.8 70.7 386.8 82.7L493.3 189.3C505.3 201.3 512 217.6 512 234.6L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 128zM336 122.5L336 216C336 229.3 346.7 240 360 240L453.5 240L336 122.5zM288 344L288 384L248 384C239.2 384 232 391.2 232 400L232 432C232 440.8 239.2 448 248 448L288 448L288 488C288 496.8 295.2 504 304 504L336 504C344.8 504 352 496.8 352 488L352 448L392 448C400.8 448 408 440.8 408 432L408 400C408 391.2 400.8 384 392 384L352 384L352 344C352 335.2 344.8 328 336 328L304 328C295.2 328 288 335.2 288 344z"/></svg>
+            </span>
+            <span>Add Prescription</span>
+        </button>
+    </div>
+    
+    <div class="navbar">
+        <a class="nav-link active">Dashboard</a>
+        <a class="nav-link" onclick="navigateToSchedule()">Schedule</a>
+        <a class="nav-link" onclick="navigateToMedicine()">Medicine</a>
+        <a class="nav-link" onclick="navigateToReport()">Report</a>
+    </div>
+    
+    <div class="dashboard">
+        <div class="left-section">
+            <div class="medication-timeline">
+                <div class="timeline-header">
+                    <h2>Patient Medication</h2>
+                    <select class="date-dropdown">
+                        <option>January 29, 2025</option>
+                    </select>
+                </div>
+                <div class="timeline-hours">
+                    <span>09:00</span>
+                    <span>10:00</span>
+                    <span>11:00</span>
+                    <span>12:00</span>
+                    <span>13:00</span>
+                    <span>14:00</span>
+                    <span>15:00</span>
+                    <span>16:00</span>
+                    <span>17:00</span>
+                </div>
+                <div class="schedule-items">
+                    <div class="schedule-item" data-patient="patient1" onclick="selectPatient('patient1')">
+                        <div class="patient-avatar" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100');"></div>
+                        <span>Paracetamol - 09:00 AM</span>
+                    </div>
+                    <div class="schedule-item" data-patient="patient2" onclick="selectPatient('patient2')">
+                        <div class="patient-avatar" style="background-image: url('https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100');"></div>
+                        <span>Antasida - 11:00 AM</span>
+                    </div>
+                    <div class="schedule-item" data-patient="patient3" onclick="selectPatient('patient3')">
+                        <div class="patient-avatar" style="background-image: url('https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100');"></div>
+                        <span>Cetirizine - 02:00 PM</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="patients-list">
+                <div class="list-header">
+                    <h2>Patients List</h2>
+                    <p class="list-subtitle">Click on a patient to view details</p>
+                </div>
+                <div class="search-controls">
+                    <div class="search-bar">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z"/></svg>
+                        </span>
+                        <input type="text" placeholder="Search for patient here" id="searchInput">
+                    </div>
+                </div>
+                <div class="patients-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Date Of Birth</th>
+                                <th>Status</th>
+                                <th>Email Address</th>
+                                <th>Phone</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <div class="patient-card" id="patientCard">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                primaryColor: params.get('primaryColor') || '#57CC99',
+                textColor: params.get('textColor') || '#212121',
+                backgroundColor: params.get('backgroundColor') || '#FBFBFB',
+                cardBackground: params.get('cardBackground') || '#ffffff',
+                borderColor: params.get('borderColor') || '#e0e0e0',
+                successColor: params.get('successColor') || '#00b894',
+                warningColor: params.get('warningColor') || '#ff9800',
+                dangerColor: params.get('dangerColor') || '#ff6b6b',
+                apiKey: params.get('apiKey')
+            };
+        }
+        
+        function applyTheme() {
+            const params = getUrlParams();
+            document.documentElement.style.setProperty('--primary-color', params.primaryColor);
+            document.documentElement.style.setProperty('--text-color', params.textColor);
+            document.documentElement.style.setProperty('--bg-color', params.backgroundColor);
+            document.documentElement.style.setProperty('--card-bg', params.cardBackground);
+            document.documentElement.style.setProperty('--border-color', params.borderColor);
+            document.documentElement.style.setProperty('--success-color', params.successColor);
+            document.documentElement.style.setProperty('--warning-color', params.warningColor);
+            document.documentElement.style.setProperty('--danger-color', params.dangerColor);
+        }
+        
+        const patientsData = {
+            patient1: {
+                id: 'patient1',
+                name: 'Wayan Bagus',
+                phone: '+62 896-0588-0609',
+                dob: '29.09.2006',
+                email: 'wBagus@gmail.com',
+                address: '72129 Bartoletti Highway, 4',
+                photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+                dobDisplay: '29 February 2025'
+            },
+            patient2: {
+                id: 'patient2',
+                name: 'Bagus Wayan',
+                phone: '+62 812-3456-7890',
+                dob: '15.03.1998',
+                email: 'BWayan@gmail.com',
+                address: '45678 Green Valley Street, 12',
+                photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
+                dobDisplay: '15 March 1998'
+            },
+            patient3: {
+                id: 'patient3',
+                name: 'Made Artha',
+                phone: '+62 821-9876-5432',
+                dob: '22.11.2000',
+                email: 'madeArtha@gmail.com',
+                address: '89012 Sunset Boulevard, 7',
+                photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+                dobDisplay: '22 November 2000'
+            }
+        };
+        
+        let currentPatient = 'patient1';
+        let filteredPatients = Object.values(patientsData);
+        
+        function renderPatientTable() {
+            const tbody = document.getElementById('patientTableBody');
+            tbody.innerHTML = filteredPatients.map((patient, index) => `
+                <tr data-patient="${patient.id}" class="${patient.id === currentPatient ? 'active' : ''}" onclick="selectPatient('${patient.id}')">
+                    <td>${index + 1}</td>
+                    <td>${patient.name}</td>
+                    <td>${patient.dobDisplay}</td>
+                    <td><span class="status-badge"><span class="status-dot"></span>Active</span></td>
+                    <td>${patient.email}</td>
+                    <td>${patient.phone}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-icon" onclick="viewPatientDetail('${patient.id}', event)" title="View Details">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M320 96C239.2 96 174.5 132.8 127.4 176.6C80.6 220.1 49.3 272 34.4 307.7C31.1 315.6 31.1 324.4 34.4 332.3C49.3 368 80.6 420 127.4 463.4C174.5 507.1 239.2 544 320 544C400.8 544 465.5 507.2 512.6 463.4C559.4 419.9 590.7 368 605.6 332.3C608.9 324.4 608.9 315.6 605.6 307.7C590.7 272 559.4 220 512.6 176.6C465.5 132.9 400.8 96 320 96zM176 320C176 240.5 240.5 176 320 176C399.5 176 464 240.5 464 320C464 399.5 399.5 464 320 464C240.5 464 176 399.5 176 320zM320 256C320 291.3 291.3 320 256 320C244.5 320 233.7 317 224.3 311.6C223.3 322.5 224.2 333.7 227.2 344.8C240.9 396 293.6 426.4 344.8 412.7C396 399 426.4 346.3 412.7 295.1C400.5 249.4 357.2 220.3 311.6 224.3C316.9 233.6 320 244.4 320 256z"/></svg>    
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function renderPatientCard() {
+            const patient = patientsData[currentPatient];
+            const card = document.getElementById('patientCard');
+            
+            card.innerHTML = `
+                <div class="patient-info">
+                    <div class="patient-photo">
+                        <img src="${patient.photo}" alt="${patient.name}">
+                    </div>
+                    <div class="patient-details">
+                        <h3>${patient.name}</h3>
+                        <div class="patient-meta">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M224.2 89C216.3 70.1 195.7 60.1 176.1 65.4L170.6 66.9C106 84.5 50.8 147.1 66.9 223.3C104 398.3 241.7 536 416.7 573.1C493 589.3 555.5 534 573.1 469.4L574.6 463.9C580 444.2 569.9 423.6 551.1 415.8L453.8 375.3C437.3 368.4 418.2 373.2 406.8 387.1L368.2 434.3C297.9 399.4 241.3 341 208.8 269.3L253 233.3C266.9 222 271.6 202.9 264.8 186.3L224.2 89z"/></svg>
+                                ${patient.phone}
+                            </div>
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M224 64C241.7 64 256 78.3 256 96L256 128L384 128L384 96C384 78.3 398.3 64 416 64C433.7 64 448 78.3 448 96L448 128L480 128C515.3 128 544 156.7 544 192L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 192C96 156.7 124.7 128 160 128L192 128L192 96C192 78.3 206.3 64 224 64zM160 304L160 336C160 344.8 167.2 352 176 352L208 352C216.8 352 224 344.8 224 336L224 304C224 295.2 216.8 288 208 288L176 288C167.2 288 160 295.2 160 304zM288 304L288 336C288 344.8 295.2 352 304 352L336 352C344.8 352 352 344.8 352 336L352 304C352 295.2 344.8 288 336 288L304 288C295.2 288 288 295.2 288 304zM432 288C423.2 288 416 295.2 416 304L416 336C416 344.8 423.2 352 432 352L464 352C472.8 352 480 344.8 480 336L480 304C480 295.2 472.8 288 464 288L432 288zM160 432L160 464C160 472.8 167.2 480 176 480L208 480C216.8 480 224 472.8 224 464L224 432C224 423.2 216.8 416 208 416L176 416C167.2 416 160 423.2 160 432zM304 416C295.2 416 288 423.2 288 432L288 464C288 472.8 295.2 480 304 480L336 480C344.8 480 352 472.8 352 464L352 432C352 423.2 344.8 416 336 416L304 416zM416 432L416 464C416 472.8 423.2 480 432 480L464 480C472.8 480 480 472.8 480 464L480 432C480 423.2 472.8 416 464 416L432 416C423.2 416 416 423.2 416 432z"/></svg>
+                                ${patient.dob}
+                            </div>
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M128 252.6C128 148.4 214 64 320 64C426 64 512 148.4 512 252.6C512 371.9 391.8 514.9 341.6 569.4C329.8 582.2 310.1 582.2 298.3 569.4C248.1 514.9 127.9 371.9 127.9 252.6zM320 320C355.3 320 384 291.3 384 256C384 220.7 355.3 192 320 192C284.7 192 256 220.7 256 256C256 291.3 284.7 320 320 320z"/></svg>
+                                ${patient.address}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="vital-signs">
+                    <div class="vital-card">
+                        <div class="vital-label">BMI</div>
+                        <div class="vital-value">25 <span class="vital-unit">kg/m²</span></div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-label">BPM</div>
+                        <div class="vital-value">72 <span class="vital-unit">bpm</span></div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-label">SpO2</div>
+                        <div class="vital-value">96 <span class="vital-unit">%</span></div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-label">BP</div>
+                        <div class="vital-value" style="font-size: 16px;">120/80</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function selectPatient(patientId) {
+            currentPatient = patientId;
+            renderPatientTable();
+            renderPatientCard();
+            sendMessage('patient-selected', { patientId });
+        }
+        
+        function viewPatientDetail(patientId, event) {
+            if (event) event.stopPropagation();
+            sendMessage('navigate', { view: 'detail', patientId });
+        }
+        
+        function navigateToAddMedicine() {
+            sendMessage('navigate', { view: 'add-medicine' });
+        }
+        
+        function navigateToAddPrescription() {
+            sendMessage('navigate', { view: 'add-prescription' });
+        }
+        
+        function navigateToSchedule() {
+            sendMessage('navigate', { view: 'schedule' });
+        }
+        
+        function navigateToMedicine() {
+            sendMessage('navigate', { view: 'medicine' });
+        }
+        
+        function navigateToReport() {
+            sendMessage('navigate', { view: 'report' });
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredPatients = Object.values(patientsData).filter(patient => 
+                patient.name.toLowerCase().includes(searchTerm) ||
+                patient.email.toLowerCase().includes(searchTerm) ||
+                patient.phone.includes(searchTerm)
+            );
+            renderPatientTable();
+        });
+        
+        function sendMessage(type, data) {
+            window.parent.postMessage({ type, ...data }, '*');
+        }
+        
+        function sendResize() {
+            const height = document.body.scrollHeight;
+            sendMessage('resize', { height });
+        }
+        
+        applyTheme();
+        renderPatientTable();
+        renderPatientCard();
+        setTimeout(sendResize, 100);
+        new ResizeObserver(sendResize).observe(document.body);
+    </script>
+</body>
+</html>

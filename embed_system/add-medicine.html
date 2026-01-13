@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add/Edit Medicine</title>
+    <style>
+        :root {
+            --primary-color: #57CC99;
+            --text-color: #212121;
+            --bg-color: #FBFBFB;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00b894;
+            --warning-color: #ff9800;
+            --danger-color: #ff6b6b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--bg-color);
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .back-btn {
+            background: var(--primary-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .back-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .required {
+            color: var(--danger-color);
+        }
+        
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(95, 201, 175, 0.1);
+        }
+        
+        .textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .select-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: var(--card-bg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .select-btn:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .modal-option {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-option:hover {
+            background: var(--bg-color);
+        }
+        
+        .modal-option.selected {
+            background: rgba(95, 201, 175, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .save-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(95, 201, 175, 0.3);
+            z-index: 100;
+        }
+        
+        .save-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 16px rgba(95, 201, 175, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .save-btn {
+                left: 20px;
+                right: 20px;
+                transform: none;
+            }
+            
+            .save-btn:hover {
+                transform: translateY(-2px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="navigateBack()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/></svg>
+        </button>
+        <h1 id="pageTitle">Add Medicine</h1>
+    </div>
+    
+    <div class="form-container">
+        <div class="form-group">
+            <label class="label">Name <span class="required">*</span></label>
+            <input type="text" class="input" id="name" placeholder="Enter medicine name" />
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Code <span class="required">*</span></label>
+            <input type="text" class="input" id="code" placeholder="Enter medicine code (e.g. PARA001)" />
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Description <span class="required">*</span></label>
+            <textarea class="input textarea" id="description" placeholder="Enter medicine description"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Type <span class="required">*</span></label>
+            <div class="select-btn" onclick="openModal('type')">
+                <span id="typeDisplay">Select type</span>
+                <span>▼</span>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label class="label">Strength <span class="required">*</span></label>
+                <input type="number" class="input" id="strength" placeholder="Enter strength (e.g. 500)" />
+            </div>
+            
+            <div class="form-group">
+                <label class="label">Unit <span class="required">*</span></label>
+                <div class="select-btn" onclick="openModal('unit')">
+                    <span id="unitDisplay">Select unit</span>
+                    <span>▼</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Stock <span class="required">*</span></label>
+            <input type="number" class="input" id="stock" placeholder="Enter stock quantity" />
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Expired Date <span class="required">*</span></label>
+            <input type="date" class="input" id="expiredDate" />
+        </div>
+    </div>
+    
+    <button class="save-btn" onclick="saveMedicine()">
+        <span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M160 96C124.7 96 96 124.7 96 160L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 237.3C544 220.3 537.3 204 525.3 192L448 114.7C436 102.7 419.7 96 402.7 96L160 96zM192 192C192 174.3 206.3 160 224 160L384 160C401.7 160 416 174.3 416 192L416 256C416 273.7 401.7 288 384 288L224 288C206.3 288 192 273.7 192 256L192 192zM320 352C355.3 352 384 380.7 384 416C384 451.3 355.3 480 320 480C284.7 480 256 451.3 256 416C256 380.7 284.7 352 320 352z"/></svg>
+        </span>
+        <span id="saveBtnText">Save Medicine</span>
+    </button>
+    
+    <!-- Modal for selections -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Select Option</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                medicineId: params.get('medicineId'),
+                mode: params.get('mode'),
+                primaryColor: params.get('primaryColor') || '#57CC99',
+                textColor: params.get('textColor') || '#212121',
+                backgroundColor: params.get('backgroundColor') || '#FBFBFB',
+                cardBackground: params.get('cardBackground') || '#ffffff',
+                borderColor: params.get('borderColor') || '#e0e0e0',
+                successColor: params.get('successColor') || '#00b894',
+                warningColor: params.get('warningColor') || '#ff9800',
+                dangerColor: params.get('dangerColor') || '#ff6b6b',
+                apiKey: params.get('apiKey')
+            };
+        }
+        
+        function applyTheme() {
+            const params = getUrlParams();
+            document.documentElement.style.setProperty('--primary-color', params.primaryColor);
+            document.documentElement.style.setProperty('--text-color', params.textColor);
+            document.documentElement.style.setProperty('--bg-color', params.backgroundColor);
+            document.documentElement.style.setProperty('--card-bg', params.cardBackground);
+            document.documentElement.style.setProperty('--border-color', params.borderColor);
+            document.documentElement.style.setProperty('--success-color', params.successColor);
+            document.documentElement.style.setProperty('--warning-color', params.warningColor);
+            document.documentElement.style.setProperty('--danger-color', params.dangerColor);
+        }
+        
+        // Form data
+        const formData = {
+            type: null,
+            unit: null
+        };
+        
+        // Sample medicines for edit mode
+        const medicinesData = {
+            1: { name: 'Paracetamol', code: 'PARA001', description: 'Pain reliever and fever reducer', type: 'Tablet', strength: '500', unit: 'MG', stock: '150', expiredDate: '2026-12-31' },
+            2: { name: 'Amoxicillin', code: 'AMOX001', description: 'Antibiotic for bacterial infections', type: 'Capsule', strength: '500', unit: 'MG', stock: '80', expiredDate: '2026-11-30' },
+            3: { name: 'Ibuprofen', code: 'IBU001', description: 'Anti-inflammatory drug', type: 'Tablet', strength: '400', unit: 'MG', stock: '15', expiredDate: '2026-10-15' },
+            4: { name: 'Aspirin', code: 'ASP001', description: 'Pain reliever and blood thinner', type: 'Tablet', strength: '100', unit: 'MG', stock: '0', expiredDate: '2026-09-20' },
+            5: { name: 'Cetirizine', code: 'CET001', description: 'Antihistamine for allergies', type: 'Tablet', strength: '10', unit: 'MG', stock: '200', expiredDate: '2027-01-15' },
+            6: { name: 'Antasida', code: 'ANT001', description: 'Antacid for stomach acid', type: 'Syrup', strength: '120', unit: 'ML', stock: '45', expiredDate: '2026-08-30' },
+            7: { name: 'Loperamide', code: 'LOP001', description: 'Anti-diarrheal medication', type: 'Capsule', strength: '2', unit: 'MG', stock: '8', expiredDate: '2026-07-25' },
+            8: { name: 'Domperidone', code: 'DOM001', description: 'Anti-nausea medication', type: 'Tablet', strength: '10', unit: 'MG', stock: '120', expiredDate: '2026-12-10' },
+            9: { name: 'Vitamin C', code: 'VIT001', description: 'Vitamin C supplement', type: 'Tablet', strength: '1000', unit: 'MG', stock: '0', expiredDate: '2026-06-15' },
+            10: { name: 'Omeprazole', code: 'OME001', description: 'Proton pump inhibitor', type: 'Capsule', strength: '20', unit: 'MG', stock: '95', expiredDate: '2026-11-05' },
+        };
+        
+        const options = {
+            type: ['Syrup', 'Tablet', 'Capsule', 'Injection', 'Ointment', 'Cream', 'Drops', 'Inhaler', 'Powder'],
+            unit: ['ML', 'MG', 'G', 'MCG', 'IU', 'Units', '%']
+        };
+        
+        let currentModalType = null;
+        
+        // Modal functions
+        function openModal(type) {
+            currentModalType = type;
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            if (type === 'type') {
+                modalTitle.textContent = 'Select Medicine Type';
+            } else if (type === 'unit') {
+                modalTitle.textContent = 'Select Unit';
+            }
+            
+            const currentValue = formData[type];
+            modalBody.innerHTML = options[type].map(option => `
+                <div class="modal-option ${option === currentValue ? 'selected' : ''}" 
+                     onclick="selectOption('${type}', '${option}')">
+                    <span>${option}</span>
+                    ${option === currentValue ? '<span>✓</span>' : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+        
+        function closeModal(event) {
+            if (!event || event.target.id === 'modalOverlay') {
+                document.getElementById('modalOverlay').classList.remove('active');
+                currentModalType = null;
+            }
+        }
+        
+        function selectOption(type, value) {
+            formData[type] = value;
+            document.getElementById(type + 'Display').textContent = value;
+            closeModal();
+        }
+        
+        // Navigation
+        function navigateBack() {
+            sendMessage('navigate', { view: 'medicine' });
+        }
+        
+        // Initialize form for edit mode
+        function initForm() {
+            const params = getUrlParams();
+            
+            if (params.mode === 'edit' && params.medicineId) {
+                document.getElementById('pageTitle').textContent = 'Edit Medicine';
+                document.getElementById('saveBtnText').textContent = 'Update Medicine';
+                
+                const medicine = medicinesData[params.medicineId];
+                if (medicine) {
+                    document.getElementById('name').value = medicine.name;
+                    document.getElementById('code').value = medicine.code;
+                    document.getElementById('description').value = medicine.description;
+                    formData.type = medicine.type;
+                    document.getElementById('typeDisplay').textContent = medicine.type;
+                    document.getElementById('strength').value = medicine.strength;
+                    formData.unit = medicine.unit;
+                    document.getElementById('unitDisplay').textContent = medicine.unit;
+                    document.getElementById('stock').value = medicine.stock;
+                    document.getElementById('expiredDate').value = medicine.expiredDate;
+                }
+            }
+        }
+        
+        // Save medicine
+        function saveMedicine() {
+            const params = getUrlParams();
+            const data = {
+                id: params.medicineId || null,
+                mode: params.mode || 'add',
+                name: document.getElementById('name').value,
+                code: document.getElementById('code').value,
+                description: document.getElementById('description').value,
+                type: formData.type,
+                strength: document.getElementById('strength').value,
+                unit: formData.unit,
+                stock: document.getElementById('stock').value,
+                expiredDate: document.getElementById('expiredDate').value
+            };
+            
+            // Validate
+            if (!data.name || !data.code || !data.description || !data.type || !data.strength || !data.unit || !data.stock || !data.expiredDate) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            console.log('Saving medicine:', data);
+            sendMessage('save-medicine', data);
+        }
+        
+        // Send message to parent
+        function sendMessage(type, data) {
+            window.parent.postMessage({ type, ...data }, '*');
+        }
+        
+        // Send resize message
+        function sendResize() {
+            const height = Math.max(document.body.scrollHeight, 900);
+            sendMessage('resize', { height });
+        }
+        
+        // Initialize
+        applyTheme();
+        initForm();
+        setTimeout(sendResize, 100);
+        new ResizeObserver(sendResize).observe(document.body);
+    </script>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Prescription</title>
+    <style>
+        :root {
+            --primary-color: #57CC99;
+            --text-color: #212121;
+            --bg-color: #FBFBFB;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00b894;
+            --warning-color: #ff9800;
+            --danger-color: #ff6b6b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--bg-color);
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .back-btn {
+            background: var(--primary-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 16px;
+        }
+        
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .required {
+            color: var(--danger-color);
+        }
+        
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(95, 201, 175, 0.1);
+        }
+        
+        .select-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-color);
+            background: var(--card-bg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .select-btn:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .prescription-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        
+        .prescription-header {
+            background: var(--bg-color);
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .prescription-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .prescription-content {
+            padding: 20px;
+            display: none;
+        }
+        
+        .prescription-content.expanded {
+            display: block;
+        }
+        
+        .info-box {
+            background: rgba(95, 201, 175, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+        
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid var(--warning-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--warning-color);
+        }
+        
+        .schedule-card {
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .schedule-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+        
+        .switch-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .switch-btn {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .switch-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .add-prescription-btn {
+            background: var(--card-bg);
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .add-prescription-btn:hover {
+            background: rgba(95, 201, 175, 0.05);
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .modal-option {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-option:hover {
+            background: var(--bg-color);
+        }
+        
+        .modal-option.selected {
+            background: rgba(95, 201, 175, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .save-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(95, 201, 175, 0.3);
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(95, 201, 175, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="navigateBack()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/></svg>
+        </button>
+        <h1>Add Prescription & Schedule</h1>
+    </div>
+    
+    <h2 class="section-title">Prescription</h2>
+    
+    <div class="form-container">
+        <div class="form-group">
+            <label class="label">Patient <span class="required">*</span></label>
+            <div class="select-btn" onclick="openModal('patient')">
+                <span id="patientDisplay">Select patient</span>
+                <span>▼</span>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="label">Diagnosis <span class="required">*</span></label>
+            <input type="text" class="input" id="diagnosis" placeholder="Enter diagnosis name" />
+        </div>
+    </div>
+    
+    <div id="prescriptionsList"></div>
+    
+    <button class="add-prescription-btn" onclick="addPrescription()">
+        <span>Add Prescription Item</span>
+        <span>+</span>
+    </button>
+    
+    <button class="save-btn" onclick="savePrescription()">
+        <span>Save</span>
+        <span id="prescriptionCount">1 Prescription</span>
+    </button>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Select Option</h3>
+                <button class="close-btn" onclick="closeModal()">x</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Get URL params and apply theme
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                patientId: params.get('patientId'),
+                primaryColor: params.get('primaryColor') || '#57CC99',
+                textColor: params.get('textColor') || '#212121',
+                backgroundColor: params.get('backgroundColor') || '#FBFBFB',
+                cardBackground: params.get('cardBackground') || '#ffffff',
+                borderColor: params.get('borderColor') || '#e0e0e0',
+                successColor: params.get('successColor') || '#00b894',
+                warningColor: params.get('warningColor') || '#ff9800',
+                dangerColor: params.get('dangerColor') || '#ff6b6b',
+                apiKey: params.get('apiKey')
+            };
+        }
+        
+        function applyTheme() {
+            const params = getUrlParams();
+            document.documentElement.style.setProperty('--primary-color', params.primaryColor);
+            document.documentElement.style.setProperty('--text-color', params.textColor);
+            document.documentElement.style.setProperty('--bg-color', params.backgroundColor);
+            document.documentElement.style.setProperty('--card-bg', params.cardBackground);
+            document.documentElement.style.setProperty('--border-color', params.borderColor);
+            document.documentElement.style.setProperty('--success-color', params.successColor);
+            document.documentElement.style.setProperty('--warning-color', params.warningColor);
+            document.documentElement.style.setProperty('--danger-color', params.dangerColor);
+        }
+        
+        // Data
+        const patients = [
+            { id: 'patient1', name: 'Wayan Bagus', username: '@wayanbagus' },
+            { id: 'patient2', name: 'Bagus Wayan', username: '@baguswayan' },
+            { id: 'patient3', name: 'Made Artha', username: '@madeartha' }
+        ];
+        
+        const medicines = [
+            'Paracetamol - PARA001',
+            'Amoxicillin - AMOX001',
+            'Ibuprofen - IBU001',
+            'Aspirin - ASP001',
+            'Cetirizine - CET001'
+        ];
+        
+        const frequencyTypes = ['Day', 'Week', 'Month'];
+        const instructions = ['Before Meal', 'After Meal', 'With Meal', 'Before Sleep'];
+        const doseUnits = ['ML', 'MG', 'Tablet', 'Capsule'];
+        
+        let formData = {
+            patient: null,
+            diagnosis: ''
+        };
+        
+        let prescriptions = [{
+            id: 1,
+            medicine: 'Paracetamol - PARA001',
+            frequency: '',
+            frequencyType: 'Day',
+            doseAmount: '',
+            doseUnit: 'ML',
+            duration: '',
+            startDate: new Date().toISOString().split('T')[0],
+            instruction: 'After Meal',
+            schedules: [{ time: '09:00', reminder: true }],
+            expanded: true
+        }];
+        
+        let currentModal = { type: null, prescriptionId: null };
+        
+        // Initialize
+        function init() {
+            const params = getUrlParams();
+            if (params.patientId) {
+                const patient = patients.find(p => p.id === params.patientId);
+                if (patient) {
+                    formData.patient = patient;
+                    document.getElementById('patientDisplay').textContent = `${patient.name} (${patient.username})`;
+                }
+            }
+            renderPrescriptions();
+        }
+        
+        // Render prescriptions
+        function renderPrescriptions() {
+            const container = document.getElementById('prescriptionsList');
+            container.innerHTML = prescriptions.map((p, index) => `
+                <div class="prescription-card">
+                    <div class="prescription-header" onclick="togglePrescription(${p.id})">
+                        <span class="prescription-title">Prescription ${index + 1}</span>
+                        <span>${p.expanded ? '▲' : '▼'}</span>
+                    </div>
+                    <div class="prescription-content ${p.expanded ? 'expanded' : ''}">
+                        ${renderPrescriptionForm(p)}
+                    </div>
+                </div>
+            `).join('');
+            
+            updateSaveButton();
+            sendResize();
+        }
+        
+        function renderPrescriptionForm(p) {
+            const scheduleCount = parseInt(p.frequency) || 0;
+            return `
+                <div class="form-group">
+                    <label class="label">Medicine <span class="required">*</span></label>
+                    <div class="select-btn" onclick="openModal('medicine', ${p.id})">
+                        <span>${p.medicine}</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label class="label">Frequency <span class="required">*</span></label>
+                        <input type="number" class="input" value="${p.frequency}" 
+                               oninput="updatePrescription(${p.id}, 'frequency', this.value)" 
+                               placeholder="count" />
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Frequency Type <span class="required">*</span></label>
+                        <div class="select-btn" onclick="openModal('frequencyType', ${p.id})">
+                            <span>${p.frequencyType}</span>
+                            <span>▼</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">Dose Amount <span class="required">*</span></label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" class="input" value="${p.doseAmount}" 
+                               oninput="updatePrescription(${p.id}, 'doseAmount', this.value)" 
+                               placeholder="Enter dose amount" style="flex: 1;" />
+                        <div class="select-btn" onclick="openModal('doseUnit', ${p.id})" style="width: 120px;">
+                            <span>${p.doseUnit}</span>
+                            <span>▼</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">Duration <span class="required">*</span></label>
+                    <input type="text" class="input" value="${p.duration}" 
+                           oninput="updatePrescription(${p.id}, 'duration', this.value)" 
+                           placeholder="Enter duration prescription" />
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">Start Date <span class="required">*</span></label>
+                    <input type="date" class="input" value="${p.startDate}" 
+                           oninput="updatePrescription(${p.id}, 'startDate', this.value)" />
+                </div>
+                
+                <div class="form-group">
+                    <label class="label">Instruction <span class="required">*</span></label>
+                    <div class="select-btn" onclick="openModal('instruction', ${p.id})">
+                        <span>${p.instruction}</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px;">
+                    <h3 class="section-title" style="font-size: 14px; color: var(--primary-color);">
+                        Detail Medication Schedule
+                    </h3>
+                    
+                    ${scheduleCount > 0 ? `
+                        <div class="info-box">
+                            <span>ℹ</span>
+                            <span>${scheduleCount} schedule${scheduleCount > 1 ? 's' : ''} for this prescription</span>
+                        </div>
+                        ${p.schedules.map((s, i) => renderSchedule(p.id, i, s)).join('')}
+                    ` : `
+                        <div class="warning-box">
+                            <span>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20"><path fill="#ff9800" d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg>
+                            </span>
+                            <span>Enter frequency to set schedules</span>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+        
+        function renderSchedule(prescriptionId, index, schedule) {
+            return `
+                <div class="schedule-card">
+                    <div class="schedule-title">Schedule ${index + 1}</div>
+                    <div class="form-group">
+                        <label class="label">Time <span class="required">*</span></label>
+                        <input type="time" class="input" value="${schedule.time}" 
+                               oninput="updateSchedule(${prescriptionId}, ${index}, 'time', this.value)" />
+                    </div>
+                    <label class="label">With Reminder Sound</label>
+                    <div class="switch-container">
+                        <div class="switch-btn ${schedule.reminder ? 'active' : ''}" 
+                             onclick="updateSchedule(${prescriptionId}, ${index}, 'reminder', true)">On</div>
+                        <div class="switch-btn ${!schedule.reminder ? 'active' : ''}" 
+                             onclick="updateSchedule(${prescriptionId}, ${index}, 'reminder', false)">Off</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update prescription
+        function updatePrescription(id, field, value) {
+            const prescription = prescriptions.find(p => p.id === id);
+            if (prescription) {
+                prescription[field] = value;
+                
+                if (field === 'frequency') {
+                    const count = parseInt(value) || 0;
+                    if (count > 0) {
+                        prescription.schedules = Array.from({ length: count }, (_, i) => 
+                            prescription.schedules[i] || { time: '09:00', reminder: true }
+                        );
+                    } else {
+                        prescription.schedules = [{ time: '09:00', reminder: true }];
+                    }
+                }
+                
+                renderPrescriptions();
+            }
+        }
+        
+        function updateSchedule(prescriptionId, index, field, value) {
+            const prescription = prescriptions.find(p => p.id === prescriptionId);
+            if (prescription && prescription.schedules[index]) {
+                prescription.schedules[index][field] = value;
+                renderPrescriptions();
+            }
+        }
+        
+        function togglePrescription(id) {
+            const prescription = prescriptions.find(p => p.id === id);
+            if (prescription) {
+                prescription.expanded = !prescription.expanded;
+                renderPrescriptions();
+            }
+        }
+        
+        function addPrescription() {
+            prescriptions.push({
+                id: prescriptions.length + 1,
+                medicine: 'Paracetamol - PARA001',
+                frequency: '',
+                frequencyType: 'Day',
+                doseAmount: '',
+                doseUnit: 'ML',
+                duration: '',
+                startDate: new Date().toISOString().split('T')[0],
+                instruction: 'After Meal',
+                schedules: [{ time: '09:00', reminder: true }],
+                expanded: true
+            });
+            renderPrescriptions();
+        }
+        
+        // Modal functions
+        function openModal(type, prescriptionId = null) {
+            currentModal = { type, prescriptionId };
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            let options = [];
+            let currentValue = null;
+            
+            if (type === 'patient') {
+                modalTitle.textContent = 'Select Patient';
+                options = patients;
+                currentValue = formData.patient;
+                modalBody.innerHTML = options.map(option => `
+                    <div class="modal-option ${option === currentValue ? 'selected' : ''}" 
+                         onclick='selectOption(${JSON.stringify(option)})'>
+                        <div>
+                            <div style="font-weight: 600;">${option.name}</div>
+                            <div style="font-size: 12px; color: #999;">${option.username}</div>
+                        </div>
+                        ${option === currentValue ? '<span>✓</span>' : ''}
+                    </div>
+                `).join('');
+            } else {
+                const prescription = prescriptions.find(p => p.id === prescriptionId);
+                
+                if (type === 'medicine') {
+                    modalTitle.textContent = 'Select Medicine';
+                    options = medicines;
+                    currentValue = prescription.medicine;
+                } else if (type === 'frequencyType') {
+                    modalTitle.textContent = 'Select Frequency Type';
+                    options = frequencyTypes;
+                    currentValue = prescription.frequencyType;
+                } else if (type === 'instruction') {
+                    modalTitle.textContent = 'Select Instruction';
+                    options = instructions;
+                    currentValue = prescription.instruction;
+                } else if (type === 'doseUnit') {
+                    modalTitle.textContent = 'Select Unit';
+                    options = doseUnits;
+                    currentValue = prescription.doseUnit;
+                }
+                
+                modalBody.innerHTML = options.map(option => `
+                    <div class="modal-option ${option === currentValue ? 'selected' : ''}" 
+                         onclick='selectOption("${option}")'>
+                        <span>${option}</span>
+                        ${option === currentValue ? '<span>✓</span>' : ''}
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+        
+        function selectOption(value) {
+            const { type, prescriptionId } = currentModal;
+            
+            if (type === 'patient') {
+                formData.patient = value;
+                document.getElementById('patientDisplay').textContent = `${value.name} (${value.username})`;
+            } else {
+                const prescription = prescriptions.find(p => p.id === prescriptionId);
+                if (prescription) {
+                    prescription[type] = value;
+                    renderPrescriptions();
+                }
+            }
+            
+            closeModal();
+        }
+        
+        function closeModal(event) {
+            if (!event || event.target.id === 'modalOverlay') {
+                document.getElementById('modalOverlay').classList.remove('active');
+                currentModal = { type: null, prescriptionId: null };
+            }
+        }
+        
+        function updateSaveButton() {
+            document.getElementById('prescriptionCount').textContent = 
+                `${prescriptions.length} Prescription${prescriptions.length > 1 ? 's' : ''}`;
+        }
+        
+        // Navigation
+        function navigateBack() {
+            const params = getUrlParams();
+            if (params.patientId) {
+                sendMessage('navigate', { view: 'detail', patientId: params.patientId });
+            } else {
+                sendMessage('navigate', { view: 'dashboard' });
+            }
+        }
+        
+        function savePrescription() {
+            const diagnosis = document.getElementById('diagnosis').value;
+            
+            if (!formData.patient) {
+                alert('Please select a patient');
+                return;
+            }
+            
+            if (!diagnosis) {
+                alert('Please enter diagnosis');
+                return;
+            }
+            
+            const data = {
+                patient: formData.patient,
+                diagnosis: diagnosis,
+                prescriptions: prescriptions
+            };
+            
+            console.log('Saving prescription:', data);
+            sendMessage('save-prescription', data);
+        }
+        
+        function sendMessage(type, data) {
+            window.parent.postMessage({ type, ...data }, '*');
+        }
+        
+        function sendResize() {
+            const height = Math.max(document.body.scrollHeight, 1200);
+            sendMessage('resize', { height });
+        }
+        
+        // Initialize
+        applyTheme();
+        init();
+        setTimeout(sendResize, 100);
+        new ResizeObserver(sendResize).observe(document.body);
+    </script>
+</body>
+</html>

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine List</title>
+    <style>
+        :root {
+            --primary-color: #57CC99;
+            --text-color: #212121;
+            --bg-color: #FBFBFB;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --success-color: #00b894;
+            --warning-color: #ff9800;
+            --danger-color: #ff6b6b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; 
+            background: var(--bg-color);
+            padding: 20px;
+        }
+        
+        .navbar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+        
+        .nav-link {
+            font-size: 20px;
+            color: #999;
+            text-decoration: none;
+            font-weight: 500;
+            padding-bottom: 5px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-link.active {
+            color: var(--text-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .nav-link:hover {
+            color: var(--text-color);
+        }
+        
+        .top-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+        
+        .action-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(95, 201, 175, 0.3);
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .medicine-list {
+            background: var(--primary-color);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .list-header {
+            margin-bottom: 15px;
+        }
+        
+        .list-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-color);
+        }
+        
+        .list-subtitle {
+            font-size: 12px;
+            color: rgba(45, 52, 54, 0.6);
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        
+        .search-bar {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .search-bar input {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            flex: 1;
+            outline: none;
+            font-size: 13px;
+        }
+        
+        .search-bar input::placeholder {
+            color: rgba(45, 52, 54, 0.5);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: rgba(45, 52, 54, 0.7);
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(45, 52, 54, 0.5);
+            color: white;
+        }
+        
+        .medicine-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f8f9fa;
+        }
+        
+        th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: #636e72;
+            text-transform: capitalize;
+        }
+        
+        td {
+            padding: 14px 12px;
+            font-size: 13px;
+            border-top: 1px solid #f0f0f0;
+            color: var(--text-color);
+        }
+        
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.available {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-badge.low-stock {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .status-badge.out-of-stock {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-badge.available .status-dot {
+            background: var(--success-color);
+        }
+        
+        .status-badge.low-stock .status-dot {
+            background: var(--warning-color);
+        }
+        
+        .status-badge.out-of-stock .status-dot {
+            background: var(--danger-color);
+        }
+        
+        .type-badge {
+            background: rgba(95, 201, 175, 0.1);
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: transform 0.2s ease;
+        }
+        
+        .action-icon:hover {
+            transform: scale(1.2);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .pagination-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(45, 52, 54, 0.5);
+            color: white;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .pagination-info {
+            color: var(--text-color);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            padding: 24px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 1200px) {
+            .top-actions {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .filter-buttons {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-actions">
+        <button class="action-btn" onclick="navigateToAddMedicine()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ffff" d="M128 176C128 149.5 149.5 128 176 128C202.5 128 224 149.5 224 176L224 288L128 288L128 176zM64 176L64 464C64 525.9 114.1 576 176 576C237.9 576 288 525.9 288 464L288 358.2L404.3 527.7C439.8 579.4 509.6 592 560.3 555.8C611 519.6 623.3 448.3 587.8 396.6L459.3 209.3C423.8 157.6 354 145 303.3 181.2C297.7 185.2 292.6 189.6 288 194.3L288 176C288 114.1 237.9 64 176 64C114.1 64 64 114.1 64 176zM328.6 304.2C312.6 280.9 318.6 248.9 340.5 233.2C361.7 218.1 391 222.9 406.5 245.4L473.5 343L393.6 398.9L328.6 304.1z"/></svg>
+            </span>
+            <span>Add Medicine</span>
+        </button>
+    </div>
+    
+    <div class="navbar">
+        <a class="nav-link" onclick="navigateToDashboard()">Dashboard</a>
+        <a class="nav-link" onclick="navigateToSchedule()">Schedule</a>
+        <a class="nav-link active">Medicine</a>
+        <a class="nav-link" onclick="navigateToReport()">Report</a>
+    </div>
+    
+    <div class="medicine-list">
+        <div class="list-header">
+            <h2>Medicine Inventory</h2>
+            <p class="list-subtitle">Manage medicine stock and information</p>
+        </div>
+        
+        <div class="search-controls">
+            <div class="search-bar">
+                <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path d="M480 272C480 317.9 465.1 360.3 440 394.7L566.6 521.4C579.1 533.9 579.1 554.2 566.6 566.7C554.1 579.2 533.8 579.2 521.3 566.7L394.7 440C360.3 465.1 317.9 480 272 480C157.1 480 64 386.9 64 272C64 157.1 157.1 64 272 64C386.9 64 480 157.1 480 272zM272 416C351.5 416 416 351.5 416 272C416 192.5 351.5 128 272 128C192.5 128 128 192.5 128 272C128 351.5 192.5 416 272 416z"/></svg>
+                </span>
+                <input type="text" id="searchInput" placeholder="Search by medicine name or code">
+            </div>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all" onclick="filterMedicines('all')">
+                All Medicine
+            </button>
+            <button class="filter-btn" data-filter="available" onclick="filterMedicines('available')">
+                Available
+            </button>
+            <button class="filter-btn" data-filter="low-stock" onclick="filterMedicines('low-stock')">
+                Low Stock
+            </button>
+            <button class="filter-btn" data-filter="out-of-stock" onclick="filterMedicines('out-of-stock')">
+                Out of Stock
+            </button>
+        </div>
+        
+        <div class="medicine-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Strength</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Expired Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="medicineTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination">
+            <button class="pagination-btn" onclick="changePage(-1)" id="prevBtn">◀</button>
+            <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+            <button class="pagination-btn" onclick="changePage(1)" id="nextBtn">▶</button>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete Medicine</h3>
+                <button class="close-btn" onclick="closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this medicine?</p>
+                <p style="margin-top: 12px; color: #666; font-size: 14px;">
+                    <strong id="deleteMedicineInfo"></strong>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                primaryColor: params.get('primaryColor') || '#57CC99',
+                textColor: params.get('textColor') || '#212121',
+                backgroundColor: params.get('backgroundColor') || '#FBFBFB',
+                cardBackground: params.get('cardBackground') || '#ffffff',
+                borderColor: params.get('borderColor') || '#e0e0e0',
+                successColor: params.get('successColor') || '#00b894',
+                warningColor: params.get('warningColor') || '#ff9800',
+                dangerColor: params.get('dangerColor') || '#ff6b6b',
+                apiKey: params.get('apiKey')
+            };
+        }
+        
+        function applyTheme() {
+            const params = getUrlParams();
+            document.documentElement.style.setProperty('--primary-color', params.primaryColor);
+            document.documentElement.style.setProperty('--text-color', params.textColor);
+            document.documentElement.style.setProperty('--bg-color', params.backgroundColor);
+            document.documentElement.style.setProperty('--card-bg', params.cardBackground);
+            document.documentElement.style.setProperty('--border-color', params.borderColor);
+            document.documentElement.style.setProperty('--success-color', params.successColor);
+            document.documentElement.style.setProperty('--warning-color', params.warningColor);
+            document.documentElement.style.setProperty('--danger-color', params.dangerColor);
+        }
+        
+        // Sample medicine data
+        const medicines = [
+            { id: 1, name: 'Paracetamol', code: 'PARA001', description: 'Pain reliever and fever reducer', type: 'Tablet', strength: '500', unit: 'MG', stock: 150, status: 'available', expiredDate: '2026-12-31' },
+            { id: 2, name: 'Amoxicillin', code: 'AMOX001', description: 'Antibiotic for bacterial infections', type: 'Capsule', strength: '500', unit: 'MG', stock: 80, status: 'available', expiredDate: '2026-11-30' },
+            { id: 3, name: 'Ibuprofen', code: 'IBU001', description: 'Anti-inflammatory drug', type: 'Tablet', strength: '400', unit: 'MG', stock: 15, status: 'low-stock', expiredDate: '2026-10-15' },
+            { id: 4, name: 'Aspirin', code: 'ASP001', description: 'Pain reliever and blood thinner', type: 'Tablet', strength: '100', unit: 'MG', stock: 0, status: 'out-of-stock', expiredDate: '2026-09-20' },
+            { id: 5, name: 'Cetirizine', code: 'CET001', description: 'Antihistamine for allergies', type: 'Tablet', strength: '10', unit: 'MG', stock: 200, status: 'available', expiredDate: '2027-01-15' },
+            { id: 6, name: 'Antasida', code: 'ANT001', description: 'Antacid for stomach acid', type: 'Syrup', strength: '120', unit: 'ML', stock: 45, status: 'available', expiredDate: '2026-08-30' },
+            { id: 7, name: 'Loperamide', code: 'LOP001', description: 'Anti-diarrheal medication', type: 'Capsule', strength: '2', unit: 'MG', stock: 8, status: 'low-stock', expiredDate: '2026-07-25' },
+            { id: 8, name: 'Domperidone', code: 'DOM001', description: 'Anti-nausea medication', type: 'Tablet', strength: '10', unit: 'MG', stock: 120, status: 'available', expiredDate: '2026-12-10' },
+            { id: 9, name: 'Vitamin C', code: 'VIT001', description: 'Vitamin C supplement', type: 'Tablet', strength: '1000', unit: 'MG', stock: 0, status: 'out-of-stock', expiredDate: '2026-06-15' },
+            { id: 10, name: 'Omeprazole', code: 'OME001', description: 'Proton pump inhibitor', type: 'Capsule', strength: '20', unit: 'MG', stock: 95, status: 'available', expiredDate: '2026-11-05' },
+        ];
+        
+        let filteredMedicines = [...medicines];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        let itemsPerPage = 8;
+        let deleteMedicineId = null;
+        
+        function renderMedicines() {
+            const tbody = document.getElementById('medicineTableBody');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageMedicines = filteredMedicines.slice(start, end);
+            
+            if (pageMedicines.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                            No medicines found
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = pageMedicines.map((medicine, index) => `
+                    <tr>
+                        <td>${start + index + 1}</td>
+                        <td><strong>${medicine.name}</strong></td>
+                        <td>${medicine.code}</td>
+                        <td><span class="type-badge">${medicine.type}</span></td>
+                        <td>${medicine.strength} ${medicine.unit}</td>
+                        <td><strong>${medicine.stock}</strong></td>
+                        <td>
+                            <span class="status-badge ${medicine.status}">
+                                <span class="status-dot"></span>
+                                ${medicine.status === 'available' ? 'Available' : 
+                                  medicine.status === 'low-stock' ? 'Low Stock' : 'Out of Stock'}
+                            </span>
+                        </td>
+                        <td>${medicine.expiredDate}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-icon" onclick="editMedicine(${medicine.id}, event)" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ff9800" d="M416.9 85.2L372 130.1L509.9 268L554.8 223.1C568.4 209.6 576 191.2 576 172C576 152.8 568.4 134.4 554.8 120.9L519.1 85.2C505.6 71.6 487.2 64 468 64C448.8 64 430.4 71.6 416.9 85.2zM338.1 164L122.9 379.1C112.2 389.8 104.4 403.2 100.3 417.8L64.9 545.6C62.6 553.9 64.9 562.9 71.1 569C77.3 575.1 86.2 577.5 94.5 575.2L222.3 539.7C236.9 535.6 250.2 527.9 261 517.1L476 301.9L338.1 164z"/></svg>
+                                </button>
+                                <button class="action-icon" onclick="deleteMedicine(${medicine.id}, event)" title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20"><path fill="#ff6b6b" d="M232.7 69.9L224 96L128 96C110.3 96 96 110.3 96 128C96 145.7 110.3 160 128 160L512 160C529.7 160 544 145.7 544 128C544 110.3 529.7 96 512 96L416 96L407.3 69.9C402.9 56.8 390.7 48 376.9 48L263.1 48C249.3 48 237.1 56.8 232.7 69.9zM512 208L128 208L149.1 531.1C150.7 556.4 171.7 576 197 576L443 576C468.3 576 489.3 556.4 490.9 531.1L512 208z"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            updatePagination();
+            sendResize();
+        }
+        
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredMedicines.length / itemsPerPage);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+        }
+        
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredMedicines.length / itemsPerPage);
+            currentPage = Math.max(1, Math.min(totalPages, currentPage + direction));
+            renderMedicines();
+        }
+        
+        function filterMedicines(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (filter === 'all') {
+                filteredMedicines = [...medicines];
+            } else {
+                filteredMedicines = medicines.filter(m => m.status === filter);
+            }
+            
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                applySearch(searchTerm);
+            }
+            
+            renderMedicines();
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            currentPage = 1;
+            applySearch(searchTerm);
+            renderMedicines();
+        });
+        
+        function applySearch(searchTerm) {
+            const baseMedicines = currentFilter === 'all' 
+                ? [...medicines] 
+                : medicines.filter(m => m.status === currentFilter);
+            
+            if (searchTerm) {
+                filteredMedicines = baseMedicines.filter(medicine => 
+                    medicine.name.toLowerCase().includes(searchTerm) ||
+                    medicine.code.toLowerCase().includes(searchTerm)
+                );
+            } else {
+                filteredMedicines = baseMedicines;
+            }
+        }
+        
+        function editMedicine(id, event) {
+            if (event) event.stopPropagation();
+            sendMessage('navigate', { 
+                view: 'add-medicine',
+                medicineId: id,
+                mode: 'edit'
+            });
+        }
+        
+        function deleteMedicine(id, event) {
+            if (event) event.stopPropagation();
+            const medicine = medicines.find(m => m.id === id);
+            if (medicine) {
+                deleteMedicineId = id;
+                document.getElementById('deleteMedicineInfo').textContent = 
+                    `${medicine.name} (${medicine.code})`;
+                document.getElementById('deleteModal').classList.add('active');
+            }
+        }
+        
+        function confirmDelete() {
+            if (deleteMedicineId) {
+                const index = medicines.findIndex(m => m.id === deleteMedicineId);
+                if (index > -1) {
+                    medicines.splice(index, 1);
+                    filterMedicines(currentFilter);
+                    closeDeleteModal();
+                    sendMessage('medicine-deleted', { medicineId: deleteMedicineId });
+                }
+            }
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteMedicineId = null;
+        }
+        
+        function closeModal(event) {
+            if (event.target.id === 'deleteModal') {
+                closeDeleteModal();
+            }
+        }
+        
+        function navigateToDashboard() {
+            sendMessage('navigate', { view: 'dashboard' });
+        }
+        
+        function navigateToSchedule() {
+            sendMessage('navigate', { view: 'schedule' });
+        }
+        
+        function navigateToAddMedicine() {
+            sendMessage('navigate', { view: 'add-medicine' });
+        }
+        
+        function navigateToReport() {
+            sendMessage('navigate', { view: 'report' });
+        }
+        
+        function sendMessage(type, data) {
+            window.parent.postMessage({ type, ...data }, '*');
+        }
+        
+        function sendResize() {
+            const height = Math.max(document.body.scrollHeight, 900);
+            sendMessage('resize', { height });
+        }
+        
+        applyTheme();
+        renderMedicines();
+        setTimeout(sendResize, 100);
+        new ResizeObserver(sendResize).observe(document.body);
+    </script>
+</body>
+</html>
